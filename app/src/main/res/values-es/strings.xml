@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI Conversation</string>
+    <string name="ai_avatar_label">Avatar de IA</string>
+    <string name="btn_start_listening">Empezar a Escuchar</string>
+    <string name="btn_stop_listening">Dejar de Escuchar</string>
+    <string name="btn_camera_on">Cámara Encendida</string>
+    <string name="btn_camera_off">Cámara Apagada</string>
+    <string name="btn_speak_ai">Hablar IA</string>
+    <string name="camera_permission_required">Se requiere permiso de cámara</string>
+    <string name="audio_permission_required">Se requiere permiso de micrófono</string>
+    <string name="placeholder_camera_off">La cámara está apagada</string>
+    <string name="tap_to_enable_camera">Toca el botón de la cámara para habilitar la vista previa</string>
+    <string name="listening_indicator">Escuchando…</string>
+    <string name="ai_greeting">¡Hola! Soy tu asistente de IA. ¿Cómo puedo ayudarte hoy?</string>
+    <string name="ai_response_1">¡Esa es una gran pregunta! Déjame pensarlo.</string>
+    <string name="ai_response_2">Entiendo. Cuéntame más sobre lo que necesitas.</string>
+    <string name="ai_response_3">¡Interesante! He procesado tu entrada y estoy listo para ayudar.</string>
+    <string name="caption_label_ai">IA</string>
+    <string name="caption_label_user">Tú</string>
+    <string name="permission_denied_message">Se requieren permisos para la funcionalidad completa.</string>
+    <string name="content_desc_avatar">Cara de Avatar de IA</string>
+    <string name="content_desc_camera_toggle">Alternar cámara</string>
+    <string name="content_desc_mic_toggle">Alternar micrófono</string>
+    <string name="content_desc_speak_button">Activar habla de IA</string>
+    <string name="camera_access_title">Permitir Acceso a la Cámara</string>
+    <string name="camera_access_description">Go Speak necesita acceso a la cámara. Por favor, actívalo en la configuración de tu dispositivo.</string>
+    <string name="camera_access_allow">Permitir Ahora</string>
+    <string name="camera_access_skip">Omitir por ahora</string>
+    <string name="mic_access_title">Permitir Acceso al Micrófono</string>
+    <string name="mic_access_description">Go Speak necesita acceso al micrófono para escucharte. Por favor, actívalo en la configuración de tu dispositivo.</string>
+    <string name="mic_access_allow">Permitir Ahora</string>
+    <string name="mic_access_skip">Omitir por ahora</string>
+    <string name="speaking">Hablando…</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="language_preference">Idioma</string>
+    <string name="language_english">Inglés (English)</string>
+    <string name="language_spanish">Español</string>
+    <string name="go_back">Volver</string>
+    <string name="microphone">Micrófono</string>
+</resources>
