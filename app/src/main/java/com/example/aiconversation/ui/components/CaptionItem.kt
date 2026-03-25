@@ -7,13 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,14 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.example.aiconversation.R
 import com.example.aiconversation.data.model.Message
 import com.example.aiconversation.data.model.Sender
 import com.example.aiconversation.ui.theme.PrimaryPurple
@@ -45,7 +39,7 @@ import com.example.aiconversation.ui.theme.PrimaryPurple
  * Slides in from the bottom when first composed.
  */
 @Composable
-fun CaptionBubble(
+fun CaptionItem(
     message: Message,
     highlightRange: Pair<Int, Int>? = null,
     modifier: Modifier = Modifier
@@ -78,30 +72,17 @@ fun CaptionBubble(
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = if (isAi) Arrangement.Start else Arrangement.End,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
-            SenderBadge(
-                label = if (isAi) stringResource(R.string.caption_label_ai) else stringResource(R.string.caption_label_user),
-                color = if (isAi) PrimaryPurple else Color(0xFF388E3C)
-            )
-            Spacer(Modifier.width(6.dp))
-
             Box(
                 modifier = Modifier
                     .widthIn(max = 280.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 4.dp,
-                            topEnd = 16.dp,
-                            bottomStart = 16.dp,
-                            bottomEnd = 16.dp
-                        )
-                    )
-                    .background(Color.Black.copy(alpha = 0.4f))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (isAi) Color.Black.copy(alpha = 0.5f) else PrimaryPurple)
                     .alpha(if (message.isPartial) 0.65f else 1f)
                     .padding(horizontal = 14.dp, vertical = 10.dp)
             ) {
@@ -118,29 +99,6 @@ fun CaptionBubble(
     }
 }
 
-/**
- * Small circular badge showing sender initials.
- */
-@Composable
-private fun SenderBadge(label: String, color: Color) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(28.dp)
-            .clip(CircleShape)
-            .background(color.copy(alpha = 0.9f))
-    ) {
-        Text(
-            text = label.take(1).uppercase(),
-            color = Color.White,
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
-}
-
-/**
- * Renders a live partial transcription from STT in a visually distinct way.
- */
 @Composable
 fun PartialCaptionBubble(
     text: String,
@@ -154,29 +112,17 @@ fun PartialCaptionBubble(
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
-            SenderBadge(
-                label = stringResource(R.string.caption_label_user),
-                color = Color(0xFF388E3C).copy(alpha = 0.5f)
-            )
-            Spacer(Modifier.width(6.dp))
             Box(
                 modifier = Modifier
                     .widthIn(max = 280.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 4.dp,
-                            topEnd = 16.dp,
-                            bottomStart = 16.dp,
-                            bottomEnd = 16.dp
-                        )
-                    )
-                    .background(Color.Black.copy(alpha = 0.4f))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(PrimaryPurple)
                     .padding(horizontal = 14.dp, vertical = 10.dp)
             ) {
                 Text(

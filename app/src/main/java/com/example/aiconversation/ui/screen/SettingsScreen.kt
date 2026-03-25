@@ -1,12 +1,30 @@
 package com.example.aiconversation.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -90,13 +108,22 @@ fun LanguageOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val borderColor =
+        if (isSelected) com.example.aiconversation.ui.theme.AccentCyan else Color.Transparent
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(
+                width = if (isSelected) 1.dp else 0.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(16.dp)
+            )
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E2C)
-        )
+            containerColor = Color(0xFF1E1E2C).copy(alpha = 0.8f) // Glassmorphism dark background
+        ),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier

@@ -37,7 +37,6 @@ import androidx.compose.ui.window.Dialog
 import com.example.aiconversation.R
 import com.example.aiconversation.ui.theme.CameraDialogGradient
 import com.example.aiconversation.ui.theme.PrimaryPurple
-import com.example.aiconversation.ui.theme.TextSecondary
 
 @Composable
 fun CameraAccessDialog(
@@ -47,7 +46,7 @@ fun CameraAccessDialog(
         Card(
             modifier = Modifier.width(312.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
         ) {
             Column {
@@ -101,7 +100,7 @@ fun CameraAccessDialog(
                 ) {
                     Text(
                         text = stringResource(R.string.camera_access_description),
-                        color = TextSecondary,
+                        color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp,
                         fontSize = 15.sp
@@ -146,7 +145,7 @@ fun MicAccessDialog(
         Card(
             modifier = Modifier.width(312.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
         ) {
             Column {
@@ -200,7 +199,7 @@ fun MicAccessDialog(
                 ) {
                     Text(
                         text = stringResource(R.string.mic_access_description),
-                        color = TextSecondary,
+                        color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp,
                         fontSize = 15.sp

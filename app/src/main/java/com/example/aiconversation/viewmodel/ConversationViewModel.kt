@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aiconversation.R
 import com.example.aiconversation.data.model.Message
 import com.example.aiconversation.data.model.Sender
 import com.example.aiconversation.utils.CameraController
@@ -40,9 +41,9 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
 
     // ── Sample AI responses for demo ─────────────────────────────────────────
     private val aiResponses = listOf(
-        application.getString(com.example.aiconversation.R.string.ai_response_1),
-        application.getString(com.example.aiconversation.R.string.ai_response_2),
-        application.getString(com.example.aiconversation.R.string.ai_response_3)
+        application.getString(R.string.ai_response_1),
+        application.getString(R.string.ai_response_2),
+        application.getString(R.string.ai_response_3)
     )
     private var responseIndex = 0
 
@@ -135,6 +136,11 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     fun onAudioPermissionResult(granted: Boolean) {
         _uiState.update { it.copy(hasAudioPermission = granted) }
         Log.d(tag, "Audio permission: $granted")
+    }
+
+    /** Clear the STT error message after it has been displayed. */
+    fun clearSttError() {
+        _uiState.update { it.copy(sttError = null) }
     }
 
     /** Toggle front-camera preview ON / OFF. */

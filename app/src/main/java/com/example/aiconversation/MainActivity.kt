@@ -3,23 +3,26 @@ package com.example.aiconversation
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.aiconversation.data.UserPreferencesRepository
 import com.example.aiconversation.ui.screen.ConversationScreen
 import com.example.aiconversation.ui.screen.SettingsScreen
@@ -68,7 +71,11 @@ class MainActivity : ComponentActivity() {
 
                         NavHost(
                             navController = navController,
-                            startDestination = NavRoutes.CONVERSATION
+                            startDestination = NavRoutes.CONVERSATION,
+                            enterTransition = { slideInHorizontally(animationSpec = tween(400)) { it } },
+                            exitTransition = { slideOutHorizontally(animationSpec = tween(400)) { -it } },
+                            popEnterTransition = { slideInHorizontally(animationSpec = tween(400)) { -it } },
+                            popExitTransition = { slideOutHorizontally(animationSpec = tween(400)) { it } }
                         ) {
                             composable(route = NavRoutes.CONVERSATION) {
                                 ConversationScreen(
