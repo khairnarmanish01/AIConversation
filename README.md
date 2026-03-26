@@ -15,7 +15,7 @@ To run this project on your local machine:
 3. **Sync Gradle**: Allow Gradle to sync and download all necessary Jetpack compose and core
    dependencies.
 4. **Device/Emulator Requirements**:
-    - Minimum API: 24 (Android 7.0)
+    - Minimum API: 29 (Android 10)
     - A physical device or an emulator equipped with a working **Microphone** and **Camera**.
 5. **Run the App**: Click the `Run` button (Shift+F10) in Android Studio to deploy an
    `assembleDebug` APK to your device.
