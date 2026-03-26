@@ -40,14 +40,20 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     val uiState: StateFlow<ConversationUiState> = _uiState.asStateFlow()
 
     // ── Sample AI responses for demo ─────────────────────────────────────────
-    private val aiResponses = listOf(
-        application.getString(R.string.ai_response_1),
-        application.getString(R.string.ai_response_2),
-        application.getString(R.string.ai_response_3)
+    private val aiResponseIds = listOf(
+        R.string.ai_response_1,
+        R.string.ai_response_2,
+        R.string.ai_response_3
     )
     private var responseIndex = 0
 
+    private var currentLanguage = "en"
+
     init {
+        preferencesRepository.languageFlow
+            .onEach { lang -> currentLanguage = lang }
+            .launchIn(viewModelScope)
+
         observeManagers()
         addInitialGreeting(application)
 
@@ -172,16 +178,35 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
 
     /** Trigger AI speaking the next canned response. */
     fun triggerAiSpeak() {
-        val response = aiResponses[responseIndex % aiResponses.size]
-        responseIndex++
+        val response = getLocalizedAiResponse(getApplication())
         speakAsAi(response)
     }
 
     // ── Internal Helpers ─────────────────────────────────────────────────────
 
+    private fun getLocalizedString(application: Application, resId: Int, language: String): String {
+        val locale = java.util.Locale(language)
+        val config = android.content.res.Configuration(application.resources.configuration)
+        config.setLocale(locale)
+        val localizedContext = application.createConfigurationContext(config)
+        return localizedContext.getString(resId)
+    }
+
+    private fun getLocalizedAiResponse(application: Application): String {
+        val resId = aiResponseIds[responseIndex % aiResponseIds.size]
+        responseIndex++
+        return getLocalizedString(application, resId, currentLanguage)
+    }
+
     private fun addInitialGreeting(application: Application) {
-        val greeting = application.getString(com.example.aiconversation.R.string.ai_greeting)
         viewModelScope.launch {
+            val lang = preferencesRepository.languageFlow.first()
+            val greeting = getLocalizedString(
+                application,
+                com.example.aiconversation.R.string.ai_greeting,
+                lang
+            )
+            
             // Wait for TTS engine to be ready before speaking
             ttsManager.isReady.first { it }
             addAiMessage(greeting)
@@ -205,8 +230,7 @@ class ConversationViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun triggerAiReply() {
-        val response = aiResponses[responseIndex % aiResponses.size]
-        responseIndex++
+        val response = getLocalizedAiResponse(getApplication())
         viewModelScope.launch {
             _uiState.update { it.copy(currentExpression = Expression.THINKING) }
             // Small delay to mimic "thinking"

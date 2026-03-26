@@ -61,9 +61,9 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalContext provides localeContext,
                 LocalConfiguration provides localeContext.resources.configuration,
-                LocalLifecycleOwner provides this,
-                LocalViewModelStoreOwner provides this,
-                LocalActivityResultRegistryOwner provides this
+                LocalActivityResultRegistryOwner provides this@MainActivity,
+                LocalLifecycleOwner provides this@MainActivity,
+                LocalViewModelStoreOwner provides this@MainActivity
             ) {
                 AIConversationTheme {
                     Surface(modifier = Modifier.fillMaxSize()) {

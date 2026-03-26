@@ -1,7 +1,6 @@
 package com.example.aiconversation.ui.screen
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -46,6 +45,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -82,6 +82,8 @@ fun ConversationScreen(
     val snackBarHost = remember { SnackbarHostState() }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val view = LocalView.current
+    val activity = view.context.findActivity()
 
     // Re-check permissions when returning from background (user might have changed them in settings)
     DisposableEffect(lifecycleOwner) {
@@ -121,7 +123,6 @@ fun ConversationScreen(
         if (granted) {
             viewModel.toggleCamera()
         } else {
-            val activity = context as? Activity
             val isPermanentlyDenied = activity?.let {
                 !ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
             } ?: false
@@ -138,7 +139,6 @@ fun ConversationScreen(
         if (granted) {
             viewModel.toggleListening()
         } else {
-            val activity = context as? Activity
             val isPermanentlyDenied = activity?.let {
                 !ActivityCompat.shouldShowRequestPermissionRationale(
                     it, Manifest.permission.RECORD_AUDIO
@@ -219,6 +219,7 @@ fun ConversationScreen(
 
             Row(
                 modifier = Modifier
+                    .padding(top = 24.dp)
                     .weight(1f)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom
@@ -300,7 +301,8 @@ fun ConversationScreen(
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", context.packageName, null)
                 }
-                context.startActivity(intent)
+                activity?.startActivity(intent)
+                    ?: context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }, onSkip = { showCameraDialog.value = false })
         }
 
@@ -310,7 +312,8 @@ fun ConversationScreen(
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", context.packageName, null)
                 }
-                context.startActivity(intent)
+                activity?.startActivity(intent)
+                    ?: context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }, onSkip = { showMicDialog.value = false })
         }
 
@@ -339,4 +342,14 @@ private fun TopPanel(
 
         }
     }
+}
+
+/** Extension to unwrap Activity from a [android.content.Context] — especially when using ConfigurationContext. */
+fun android.content.Context.findActivity(): android.app.Activity? {
+    var context = this
+    while (context is android.content.ContextWrapper) {
+        if (context is android.app.Activity) return context
+        context = context.baseContext
+    }
+    return null
 }

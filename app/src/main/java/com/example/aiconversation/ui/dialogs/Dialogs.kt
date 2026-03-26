@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,8 +40,15 @@ import com.example.aiconversation.ui.theme.CameraDialogGradient
 import com.example.aiconversation.ui.theme.PrimaryPurple
 
 @Composable
-fun CameraAccessDialog(
-    onDismiss: () -> Unit, onAllow: () -> Unit, onSkip: () -> Unit
+fun PermissionAccessDialog(
+    icon: ImageVector,
+    titleResId: Int,
+    descriptionResId: Int,
+    allowButtonResId: Int,
+    skipButtonResId: Int,
+    onDismiss: () -> Unit,
+    onAllow: () -> Unit,
+    onSkip: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -77,7 +85,7 @@ fun CameraAccessDialog(
                             modifier = Modifier.size(72.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Videocam,
+                                imageVector = icon,
                                 contentDescription = null,
                                 tint = Color.White,
                                 modifier = Modifier.padding(18.dp)
@@ -85,7 +93,7 @@ fun CameraAccessDialog(
                         }
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = stringResource(R.string.camera_access_title),
+                            text = stringResource(titleResId),
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
@@ -99,7 +107,7 @@ fun CameraAccessDialog(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.camera_access_description),
+                        text = stringResource(descriptionResId),
                         color = Color.White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp,
@@ -117,16 +125,17 @@ fun CameraAccessDialog(
                         shape = RoundedCornerShape(27.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.camera_access_allow),
+                            text = stringResource(allowButtonResId),
                             fontWeight = FontWeight.SemiBold
                         )
                     }
 
                     TextButton(
-                        onClick = onSkip, modifier = Modifier.padding(top = 8.dp)
+                        onClick = onSkip,
+                        modifier = Modifier.padding(top = 8.dp)
                     ) {
                         Text(
-                            text = stringResource(R.string.camera_access_skip),
+                            text = stringResource(skipButtonResId),
                             color = PrimaryPurple,
                             fontWeight = FontWeight.Medium
                         )
@@ -137,101 +146,40 @@ fun CameraAccessDialog(
     }
 }
 
+
+@Composable
+fun CameraAccessDialog(
+    onDismiss: () -> Unit,
+    onAllow: () -> Unit,
+    onSkip: () -> Unit
+) {
+    PermissionAccessDialog(
+        icon = Icons.Default.Videocam,
+        titleResId = R.string.camera_access_title,
+        descriptionResId = R.string.camera_access_description,
+        allowButtonResId = R.string.camera_access_allow,
+        skipButtonResId = R.string.camera_access_skip,
+        onDismiss = onDismiss,
+        onAllow = onAllow,
+        onSkip = onSkip
+    )
+}
+
+
 @Composable
 fun MicAccessDialog(
-    onDismiss: () -> Unit, onAllow: () -> Unit, onSkip: () -> Unit
+    onDismiss: () -> Unit,
+    onAllow: () -> Unit,
+    onSkip: () -> Unit
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier.width(312.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
-        ) {
-            Column {
-                // Header with Gradient
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(brush = CameraDialogGradient)
-                ) {
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(8.dp)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 40.dp, bottom = 28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = Color.White.copy(alpha = 0.2f),
-                            modifier = Modifier.size(72.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Mic,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.padding(18.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = stringResource(R.string.mic_access_title),
-                            color = Color.White,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                // Content Area
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.mic_access_description),
-                        color = Color.White.copy(alpha = 0.8f),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 22.sp,
-                        fontSize = 15.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Button(
-                        onClick = onAllow,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryPurple),
-                        shape = RoundedCornerShape(27.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.mic_access_allow),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    TextButton(
-                        onClick = onSkip, modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.mic_access_skip),
-                            color = PrimaryPurple,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-        }
-    }
+    PermissionAccessDialog(
+        icon = Icons.Default.Mic,
+        titleResId = R.string.mic_access_title,
+        descriptionResId = R.string.mic_access_description,
+        allowButtonResId = R.string.mic_access_allow,
+        skipButtonResId = R.string.mic_access_skip,
+        onDismiss = onDismiss,
+        onAllow = onAllow,
+        onSkip = onSkip
+    )
 }

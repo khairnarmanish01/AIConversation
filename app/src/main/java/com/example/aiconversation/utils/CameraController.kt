@@ -35,7 +35,7 @@ class CameraController(private val context: Context) {
      */
     fun bindCamera(
         lifecycleOwner: LifecycleOwner,
-        surfaceProvider: androidx.camera.core.Preview.SurfaceProvider
+        surfaceProvider: Preview.SurfaceProvider
     ) {
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
@@ -43,7 +43,7 @@ class CameraController(private val context: Context) {
                 cameraProvider = providerFuture.get()
 
                 val previewUseCase = Preview.Builder().build().also {
-                    it.setSurfaceProvider(surfaceProvider)
+                    it.surfaceProvider = surfaceProvider
                 }
                 preview = previewUseCase
 
