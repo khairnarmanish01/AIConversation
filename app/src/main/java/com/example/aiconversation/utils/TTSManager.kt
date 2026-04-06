@@ -14,10 +14,11 @@ import java.util.Locale
  * Manages Android TextToSpeech.
  *
  * Exposes:
- *  - [isSpeaking]  — true while TTS engine is actively speaking.
- *  - [speak]       — enqueues text for speech.
- *  - [stop]        — interrupts current speech.
- *  - [shutdown]    — releases TTS engine resources.
+ *  - [isSpeaking]            — true while TTS engine is actively speaking.
+ *  - [currentVisemeWeights]  — 21-viseme weight map, updated per word during speech.
+ *  - [speak]                 — enqueues text for speech.
+ *  - [stop]                  — interrupts current speech.
+ *  - [shutdown]              — releases TTS engine resources.
  */
 class TTSManager(private val context: Context) {
 
@@ -96,21 +97,15 @@ class TTSManager(private val context: Context) {
                 Log.e(tag, "TTS error code=$errorCode for: $utteranceId")
             }
 
-            // Sync with current word spoken
             override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
                 super.onRangeStart(utteranceId, start, end, frame)
                 _currentRange.value = start to end
-
-                // Use utteranceId to get the text, though we don't have direct access here easy
-                // We'll manage current text in ViewModel or store it here.
-                // For viseme generation, we'll start it in ViewModel for now based on text.
             }
         })
     }
 
     /**
-     * Speaks the provided [text]. Queues if already speaking.
-     * Uses QUEUE_FLUSH to interrupt any current speech.
+     * Speaks the provided [text]. Flushes any current speech.
      */
     fun speak(text: String, onWordReady: (String, Long) -> Unit = { _, _ -> }) {
         if (!_isReady.value) {
@@ -123,12 +118,6 @@ class TTSManager(private val context: Context) {
                 "utt_${System.currentTimeMillis()}"
             )
         }
-
-        // Android TTS doesn't give us the word text in onRangeStart easily (only start/end indices)
-        // so we use this onWordReady callback which we invoke when onRangeStart happens logic-wise 
-        // if we were handling text ourselves.
-        // Actually, we can handle it in TTSManager if we store the text.
-
         tts?.speak(
             text,
             TextToSpeech.QUEUE_FLUSH,
@@ -137,16 +126,23 @@ class TTSManager(private val context: Context) {
         )
     }
 
+    /**
+     * Called when a TTS word range event fires. Extracts the word and
+     * triggers viseme animation for both legacy [Viseme] and [VisemeWeights].
+     */
     fun startVisemeForText(text: String, start: Int, end: Int) {
         if (start < text.length && end <= text.length) {
             val word = text.substring(start, end)
-            // Estimated duration for word based on chars (approx 100ms per char)
             val duration = (word.length * 150).toLong()
             visemeGenerator.startVisemesForWord(word, duration)
         }
     }
 
+    /** Legacy viseme StateFlow (kept for backwards compat). */
     fun getCurrentViseme(): StateFlow<Viseme> = visemeGenerator.currentViseme
+
+    /** 21-viseme weight StateFlow for the new PNG avatar. */
+    fun getCurrentVisemeWeights(): StateFlow<VisemeWeights> = visemeGenerator.currentVisemeWeights
 
     /** Immediately stops any ongoing TTS. */
     fun stop() {

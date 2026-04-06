@@ -7,6 +7,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import com.example.aiconversation.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +36,9 @@ class STTManager(private val context: Context) {
     private val _finalResult = MutableStateFlow("")
     val finalResult: StateFlow<String> = _finalResult.asStateFlow()
 
+    private val _rmsFlow = MutableStateFlow(0f)
+    val rmsFlow: StateFlow<Float> = _rmsFlow.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
@@ -46,9 +50,11 @@ class STTManager(private val context: Context) {
     }
 
     private fun initRecognizer() {
+        if (recognizer != null) return
+        
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
             Log.e(tag, "Speech recognition not available on this device")
-            _errorMessage.value = "Speech recognition not available"
+            _errorMessage.value = context.getString(R.string.stt_error_unavailable)
             return
         }
         recognizer = SpeechRecognizer.createSpeechRecognizer(context)
@@ -62,7 +68,7 @@ class STTManager(private val context: Context) {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
             putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
@@ -70,8 +76,10 @@ class STTManager(private val context: Context) {
 
     /** Start continuous listening. */
     fun startListening() {
+        initRecognizer() // Ensure it's alive
+        
         if (recognizer == null) {
-            _errorMessage.value = "Speech recognizer not initialized"
+            _errorMessage.value = context.getString(R.string.stt_error_not_init)
             Log.e(tag, "startListening() called but recognizer is null")
             return
         }
@@ -79,14 +87,17 @@ class STTManager(private val context: Context) {
         _partialResult.value = ""
         _finalResult.value = ""
         _errorMessage.value = null
+        _rmsFlow.value = 0f
 
         try {
             recognizer?.startListening(buildIntent())
             _isListening.value = true
             Log.d(tag, "STT started")
         } catch (e: Exception) {
-            _errorMessage.value = "Failed to start listening: ${e.message}"
+            _errorMessage.value =
+                context.getString(R.string.stt_error_start_failed) + ": ${e.message}"
             Log.e(tag, "Error in startListening", e)
+            _isListening.value = false
         }
     }
 
@@ -94,6 +105,7 @@ class STTManager(private val context: Context) {
     fun stopListening() {
         recognizer?.stopListening()
         _isListening.value = false
+        _rmsFlow.value = 0f
         Log.d(tag, "STT stopped")
     }
 
@@ -102,6 +114,7 @@ class STTManager(private val context: Context) {
         recognizer?.destroy()
         recognizer = null
         _isListening.value = false
+        _rmsFlow.value = 0f
         Log.d(tag, "STT destroyed")
     }
 
@@ -117,30 +130,35 @@ class STTManager(private val context: Context) {
             Log.d(tag, "Speech begun")
         }
 
-        override fun onRmsChanged(rmsdB: Float) { /* Volume meter — unused */
+        override fun onRmsChanged(rmsdB: Float) {
+            // Normalize dB (typically -2 to 10) to 0.0 – 1.0 range for visuals
+            val normalized = ((rmsdB + 2f) / 12f).coerceIn(0f, 1f)
+            _rmsFlow.value = normalized
         }
 
         override fun onBufferReceived(buffer: ByteArray?) { /* Raw audio — unused */
         }
 
         override fun onEndOfSpeech() {
-            _isListening.value = false
-            Log.d(tag, "End of speech")
+            // Note: Don't set _isListening = false here, wait for results or error
+            // to keep the "active" state in UI until processing is done.
+            Log.d(tag, "End of speech detected")
         }
 
         override fun onError(error: Int) {
             _isListening.value = false
+            _rmsFlow.value = 0f
             val msg = when (error) {
-                SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-                SpeechRecognizer.ERROR_CLIENT -> "Client side error"
-                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
-                SpeechRecognizer.ERROR_NETWORK -> "Network error"
-                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
-                SpeechRecognizer.ERROR_NO_MATCH -> "No speech match found"
-                SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Recogniser busy"
-                SpeechRecognizer.ERROR_SERVER -> "Server error"
-                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input"
-                else -> "Unknown error ($error)"
+                SpeechRecognizer.ERROR_AUDIO -> context.getString(R.string.stt_error_audio)
+                SpeechRecognizer.ERROR_CLIENT -> context.getString(R.string.stt_error_client)
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> context.getString(R.string.stt_error_permissions)
+                SpeechRecognizer.ERROR_NETWORK -> context.getString(R.string.stt_error_network)
+                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> context.getString(R.string.stt_error_network_timeout)
+                SpeechRecognizer.ERROR_NO_MATCH -> context.getString(R.string.stt_error_no_match)
+                SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> context.getString(R.string.stt_error_busy)
+                SpeechRecognizer.ERROR_SERVER -> context.getString(R.string.stt_error_server)
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> context.getString(R.string.stt_error_timeout)
+                else -> context.getString(R.string.stt_error_unknown) + " ($error)"
             }
             _errorMessage.value = msg
             Log.e(tag, "STT error: $msg")
@@ -152,6 +170,7 @@ class STTManager(private val context: Context) {
             _finalResult.value = text
             _partialResult.value = ""
             _isListening.value = false
+            _rmsFlow.value = 0f
             Log.d(tag, "Final result: $text")
         }
 
